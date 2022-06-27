@@ -1,8 +1,10 @@
 import os
+
 import numpy as np
 import torch
 import torch.nn as nn
 from PIL import Image
+
 
 ## save network
 def save(ckpt_dir, net, optim, epoch):
@@ -21,6 +23,7 @@ def load(ckpt_dir, net, optim):
     if len(ckpt_lst)==0:
         epoch=0
         return net, optim, epoch
+    # print(ckpt_lst)
     ckpt_lst.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
 
     dict_model = torch.load('%s/%s' % (ckpt_dir, ckpt_lst[-1]), map_location='cpu')

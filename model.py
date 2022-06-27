@@ -1,10 +1,15 @@
 #%%
 import os
+
 import numpy as np
 import torch
 import torch.nn as nn
+from torchvision.models.segmentation import (deeplabv3_mobilenet_v3_large,
+                                             deeplabv3_resnet50,
+                                             deeplabv3_resnet101)
 from torchvision.models.segmentation.deeplabv3 import DeepLabHead
-from torchvision.models.segmentation import deeplabv3_resnet101, deeplabv3_resnet50, deeplabv3_mobilenet_v3_large
+
+
 #%%
 class UNet_1(nn.Module):
     def __init__(self):
@@ -241,7 +246,7 @@ class UNet_2(nn.Module):
         return x
 
 def Deeplabv3_2():
-  model = deeplabv3_resnet101(pretrained=False, progress=True)
+  model = deeplabv3_resnet50(pretrained=False, progress=True)
   model.classifier = DeepLabHead(2048, 2)
   #Set the model in training mode
   # model.train()

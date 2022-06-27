@@ -17,20 +17,20 @@ from model import Deeplabv3_2, UNet_1, UNet_2
 from util import *
 
 #%%
-MODEL=Deeplabv3_2
-CHECKPOINT_DIR='ckpt_dl2'
+MODEL=UNet_1
+CHECKPOINT_DIR='ckpt_unet'
 LEARNING_RATE=1e-3
 IMAGE_PATH='/Users/anhong-eun/Desktop/Pytorch2CoreML/img/input1_029.jpg'
-SAVE_PATH='deeplab_2'
+SAVE_PATH='UNet2'
 
-#%% Load the model (UNet_2)
+#%% Load the model (UNet_2)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ,라뷰류ㅏ규2구  
 model = MODEL()
 model, optim, st_epoch = load(ckpt_dir=CHECKPOINT_DIR, net=model, optim=torch.optim.Adam(model.parameters(), lr=LEARNING_RATE))
 model.eval()
 
 #%% Load a sample image
 input_image = Image.open(IMAGE_PATH).convert('RGB')
-# input_image.show()
+input_image.show()
 
 preprocess = transforms.Compose([
     transforms.ToTensor(),
@@ -42,17 +42,19 @@ input_batch = input_tensor.unsqueeze(0)
 
 #%%
 with torch.no_grad():
-    output = model(input_batch)['out'][0]
-# print(output)
+    output = model(input_batch)[0]
 torch_predictions = output.argmax(0)
+
+#%%
 display_segmentation(input_image, torch_predictions)
+
 #%% Wrap the Model to Allow Tracing*
-class WrappedDeeplab_2(nn.Module):
+class WrappedUNet_1(nn.Module):
     
     def __init__(self):
-        super(WrappedDeeplab_2, self).__init__()
-        self.model =  Deeplabv3_2()
-        self.model, optim, st_epoch = load(ckpt_dir='ckpt_dl2', net=self.model, optim=torch.optim.Adam(model.parameters(), lr=1e-3))
+        super(WrappedUNet_1, self).__init__()
+        self.model =  UNet_1()
+        self.model, optim, st_epoch = load(ckpt_dir='ckpt_unet', net=self.model, optim=torch.optim.Adam(model.parameters(), lr=1e-3))
         self.model.eval()
     def forward(self, x):
         res = self.model(x)
@@ -60,10 +62,10 @@ class WrappedDeeplab_2(nn.Module):
         return x
 
 # Trace the Wrapped Model
-traceable_model = WrappedDeeplab_2().eval()
+traceable_model = WrappedUNet_1().eval()
+
 #%%
 trace = torch.jit.trace(traceable_model, input_batch)
-
 # Convert the model
 mlmodel = ct.convert(
     trace,
@@ -71,7 +73,7 @@ mlmodel = ct.convert(
 )
 
 # Save the model without new metadata
-name=os.path.join(SAVE_PATH, str(MODEL))
+name=os.path.join(SAVE_PATH,str(MODEL) )
 mlmodel.save(name+"_no_metadata.mlmodel")
 
 # Load the saved model
@@ -82,6 +84,6 @@ labels_json = {"labels": ["background", "teeths"]}
 
 mlmodel.user_defined_metadata["com.apple.coreml.model.preview.type"] = "imageSegmenter"
 mlmodel.user_defined_metadata['com.apple.coreml.model.preview.params'] = json.dumps(labels_json)
-
 mlmodel.save(name+"_with_metadata.mlmodel")
+
 # %%
