@@ -37,7 +37,7 @@ def load(ckpt_dir, net, optim):
 def display_segmentation(input_image, output_predictions):
     # Create a color pallette, selecting a color for each class
     palette = torch.tensor([2 ** 25 - 1, 2 ** 15 - 1, 2 ** 21 - 1])
-    colors = torch.as_tensor([i for i in range(2)])[:, None] * palette
+    colors = torch.as_tensor([i for i in range(21)])[:, None] * palette
     colors = (colors % 255).numpy().astype("uint8")
 
     # Plot the semantic segmentation predictions of 21 classes in each color
@@ -52,5 +52,5 @@ def display_segmentation(input_image, output_predictions):
     r = r.convert("RGBA")
     r.putalpha(128)
     seg_image = Image.alpha_composite(alpha_image, r)
-    # display(seg_image) -- doesn't work
     seg_image.show()
+

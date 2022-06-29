@@ -28,7 +28,7 @@ model, optim, st_epoch = load(ckpt_dir=CHECKPOINT_DIR, net=model, optim=torch.op
 model.eval()
 
 #%% Load a sample image
-input_image = Image.open(IMAGE_PATH).convert('RGB')
+input_image = Image.open(IMAGE_PATH).convert('RGB').resize((512, 512))
 # input_image.show()
 
 preprocess = transforms.Compose([
@@ -45,28 +45,14 @@ with torch.no_grad():
 torch_predictions = output.argmax(0)
 #%%
 display_segmentation(input_image, torch_predictions)
-#%% Wrap the Model to Allow Tracing*
-class WrappedUNet_2(nn.Module):
-    
-    def __init__(self):
-        super(WrappedUNet_2, self).__init__()
-        self.model =  UNet_2()
-        self.model, optim, st_epoch = load(ckpt_dir='ckpt2', net=self.model, optim=torch.optim.Adam(model.parameters(), lr=1e-3))
-        self.model.eval()
-    def forward(self, x):
-        res = self.model(x)
-        x = res
-        return x
-
-# Trace the Wrapped Model
-traceable_model = WrappedUNet_2().eval()
 #%%
-trace = torch.jit.trace(traceable_model, input_batch)
-
+trace = torch.jit.trace(model, input_batch)
+#%%
 # Convert the model
 mlmodel = ct.convert(
     trace,
-    inputs=[ct.TensorType(name="input", shape=input_batch.shape)],
+    inputs=[ct.TensorType(name="input", shape=input_batch.shape)]
+
 )
 
 # Save the model without new metadata
@@ -81,6 +67,6 @@ labels_json = {"labels": ["background", "teeths"]}
 
 mlmodel.user_defined_metadata["com.apple.coreml.model.preview.type"] = "imageSegmenter"
 mlmodel.user_defined_metadata['com.apple.coreml.model.preview.params'] = json.dumps(labels_json)
-mlmodel.save(name+"_with_metadata.mlmodel")
+mlmodel.save(name+"_qqqwith_metadata.mlmodel")
 
 # %%

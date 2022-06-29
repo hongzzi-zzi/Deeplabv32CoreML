@@ -1,0 +1,8 @@
+{
+  "MLModelCreatorDefinedKey" : {
+    "com.apple.coreml.model.preview.params" : "{\"labels\": [\"background\", \"teeths\"]}",
+    "com.apple.coreml.model.preview.type" : "imageSegmenter",
+    "com.github.apple.coremltools.source" : "torch==1.11.0",
+    "com.github.apple.coremltools.version" : "5.0b5"
+  }
+}

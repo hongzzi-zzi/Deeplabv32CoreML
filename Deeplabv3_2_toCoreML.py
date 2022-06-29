@@ -29,7 +29,7 @@ model, optim, st_epoch = load(ckpt_dir=CHECKPOINT_DIR, net=model, optim=torch.op
 model.eval()
 
 #%% Load a sample image
-input_image = Image.open(IMAGE_PATH).convert('RGB')
+input_image = Image.open(IMAGE_PATH).convert('RGB').resize((512, 512))
 # input_image.show()
 
 preprocess = transforms.Compose([
@@ -56,7 +56,7 @@ class WrappedDeeplab_2(nn.Module):
         self.model.eval()
     def forward(self, x):
         res = self.model(x)
-        x = res
+        x = res['out']
         return x
 
 # Trace the Wrapped Model
